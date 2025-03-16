@@ -1,53 +1,41 @@
+from flask import Flask, request, jsonify
 from unsloth import FastLanguageModel
 import torch
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
-# Load Model
-max_seq_length = 2048
-dtype = None
-load_in_4bit = True
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
+# Load model
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="unsloth/llama-3-8b-bnb-4bit",
-    max_seq_length=max_seq_length,
-    dtype=dtype,
-    load_in_4bit=load_in_4bit,
+    "unsloth/llama-3-8b-bnb-4bit",
+    max_seq_length=1024,  # Reduce max sequence length to avoid large outputs
+    dtype=None,
+    load_in_4bit=True,
     device_map="auto"
 )
 FastLanguageModel.for_inference(model)
 
-chat_history = []
-
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
-    user_input = data.get("message", "")
-    
-    alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+    try:
+        data = request.get_json()
+        user_input = data.get("message", "").strip()
 
-    ### Instruction:
-    {}
-    
-    ### Input:
-    {}
-    
-    ### Response:
-    {}"""
-    
-    context = "\n".join([f"User: {entry['user']}\nAI: {entry['ai']}" for entry in chat_history[-5:]])
-    prompt = alpaca_prompt.format("You are a helpful assistant.", context + "\n" + user_input, "")
-    
-    inputs = tokenizer([prompt], return_tensors='pt').to(device)
-    outputs = model.generate(**inputs, max_new_tokens=100, temperature=0.1)
-    response = tokenizer.batch_decode(outputs)[0]
-    
-    chat_history.append({"user": user_input, "ai": response})
-    return jsonify({"response": response})
+        if not user_input:
+            return jsonify({"error": "Empty message received"}), 400
+
+        # Limit input length
+        if len(user_input) > 500:
+            return jsonify({"error": "Input too long. Limit to 500 characters."}), 400
+
+        # Process input
+        inputs = tokenizer([user_input], return_tensors="pt").to("cuda")
+        outputs = model.generate(**inputs, max_new_tokens=50, temperature=0.7)  # Limit output size
+        response = tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
+
+        return jsonify({"response": response})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run()
