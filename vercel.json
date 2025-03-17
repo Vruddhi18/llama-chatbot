@@ -1,4 +1,12 @@
 {
+  "version": 2,
+  "functions": {
+    "api/chatbot.py": {
+      "runtime": "python3.9",
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
   "builds": [
     {
       "src": "api/chatbot.py",
