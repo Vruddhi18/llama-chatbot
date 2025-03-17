@@ -8,3 +8,6 @@ peft
 datasets
 fastapi
 uvicorn
+vercel-python
+Flask
+
