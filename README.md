@@ -36,16 +36,6 @@ Move the .gguf model file to your project directory.
 python app.py
 ```
 
-## 🌟 Features
-
-✅ **Runs on CPU** – No GPU required, making it accessible on standard hardware  
-✅ **Optimized with `ctransformers`** – Faster inference on CPUs  
-✅ **Concise & direct responses** – Avoids unnecessary small talk  
-✅ **Interactive Gradio UI** – Easy-to-use web interface  
-✅ **Maintains chat history** – Context-aware responses  
-
----
-
 ## 🤖 Model & Performance
 Model Used: LLaMA 3 (8B) - Quantized (Q4_K_M)
 Why CPU?: This chatbot is optimized to run without a GPU, making it accessible to more users.
