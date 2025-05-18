@@ -38,7 +38,9 @@ python app.py
 
 ## 🤖 Model & Performance
 Model Used: LLaMA 3 (8B) - Quantized (Q4_K_M)
+
 Why CPU?: This chatbot is optimized to run without a GPU, making it accessible to more users.
+
 Optimization: Adjusted temperature, response length, and stop tokens for more accurate answers.
 
 ## 📌 Example Conversations
